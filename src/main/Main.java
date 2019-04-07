@@ -1,5 +1,6 @@
 package main;
 
+import aiPakSam.AIPakSam;
 import gui.GameGUIController;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -15,12 +16,11 @@ public class Main extends Application {
 
   @Override
   public void start(Stage primaryStage) throws Exception {
-    TestAI testAI1 = new TestAI("Alice");
-    GUIGamePlayer testAI2 = new GUIGamePlayer("Bob");
-    GUIGamePlayer testAI3 = new GUIGamePlayer("Charlie");
-    GUIGamePlayer testAI4 = new GUIGamePlayer("Daisy");
-    GUIGamePlayer testAI5 = new GUIGamePlayer("Eve");
+    TestAI testAI1 = new TestAI("BOT0");
+    TestAI testAI2 = new TestAI("BOT1");
+    TestAI testAI3 = new TestAI("BOT2");
+    AIPakSam testAI4 = new AIPakSam("PakSam");
     setUserAgentStylesheet(STYLESHEET_MODENA);
-    window = GameGUIController.NewGameSession(testAI1, testAI2, testAI3, testAI4, testAI5);
+    window = GameGUIController.NewGameSession(testAI1, testAI2, testAI3, testAI4);
   }
 }
