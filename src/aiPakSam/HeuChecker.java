@@ -118,6 +118,58 @@ public class HeuChecker {
         return maxHeu(allMoveHeu);
     }
 
+    protected float calcHeuCellPath(PathCard path, Move target, boolean isMiner) {
+        float bmove = 0;
+        ArrayList<MoveHeu> allMoveHeu = new ArrayList<>();
+
+//        System.out.println("Inside heuChecker");
+
+            //     Cell's Top Row      AND    Card has RightPath     AND    Card has BottomPath
+            if(target.args()[1] == 0 && path.sides()[1].val() == 1 && path.sides()[2].val() == 1 ) {
+                bmove = bmove + 0.3f*(2);
+            }
+
+            //Cell's Between TopBottom Row
+            if(target.args()[1] < 4 && target.args()[1] > 0 ) {
+                int top     = path.sides()[0].val();
+                int right   = path.sides()[1].val();
+                int bot     = path.sides()[2].val();
+
+                bmove = bmove + 0.3f*(top+right+bot)+0.1f;
+            }
+
+            //     Cell's Bot Row      AND    Card has RightPath     AND    Card has TopPath
+            if(target.args()[1] == 4 && path.sides()[1].val() == 1 && path.sides()[0].val() == 1 ) {
+                bmove = bmove + 0.3f*(2);
+            }
+
+            // CardType is Pathway AND I'm Gold Miner
+            if(path.type() == Card.Type.PATHWAY && isMiner) {
+                bmove = bmove + 0.1f * (1 + target.args()[0]) / possibleGold;
+            }
+
+            // CardType is Pathway AND I'm Saboteur
+            if(path.type() == Card.Type.PATHWAY && !isMiner) {
+                bmove = bmove + 0.1f * (9 - target.args()[0]) / possibleGold;
+            }
+
+            // CardType is Deadend AND I'm Gold Miner
+            if(path.type() == Card.Type.DEADEND && isMiner) {
+                bmove = bmove + 0.1f * (9 - target.args()[0]) / possibleGold;
+            }
+
+            // CardType is Deadend AND I'm Saboteur
+            if(path.type() == Card.Type.DEADEND && !isMiner) {
+                bmove = bmove + 0.1f * (1 + target.args()[0]) / possibleGold;
+            }
+
+            bmove = bmove + k0;
+
+
+
+        return bmove;
+    }
+
     protected MoveHeu calcHeuCardMap(int playerIndex, int cardIndex, int[] goalData) {
         ArrayList<MoveHeu> allMoveHeu = new ArrayList<>();
 

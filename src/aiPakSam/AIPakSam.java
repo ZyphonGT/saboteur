@@ -170,6 +170,34 @@ public class AIPakSam extends AI {
 
         if(move.type() == Move.Type.PLAY_PATH) {
             System.out.println("Player " + move.playerIndex() + " PATH");
+
+            float z1, z2;
+            int x,y,rotate;
+
+            /**
+             * STILL INCORRECT
+             *
+             * Baru cek lokasi terbaik kartunya SETELAH kartu itu ditaroh
+             *
+             * Harusnya ceknya pada saat sblm kartu itu ditaro
+             *
+             * NOTE: Very BUGGY (Sering NullPointer)
+             */
+
+            ArrayList<Move> m = new ArrayList<>();
+            m.addAll(generatePossiblePaths(move.handIndex(),(PathCard) move.card()));
+
+            MoveHeu bestMove = hc.calcHeuCardPath((PathCard) move.card(), m, isMiner);
+            x = bestMove.m.args()[0];
+            y = bestMove.m.args()[1];
+            rotate = bestMove.m.args()[2];
+
+            z1 = bestMove.heu;
+            System.out.println("Z1 = "+z1 +" at "+x+","+y+", rotate="+rotate);
+
+            z2 = hc.calcHeuCellPath((PathCard) move.card(), move, isMiner);
+            System.out.println("Z2 = "+z2);
+
         }
 
         if(move.type() == Move.Type.PLAY_ROCKFALL) {
