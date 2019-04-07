@@ -243,9 +243,7 @@ public class AIPakSam extends AI {
         // - a path card is placed so that a goal card is reached
 
         /**
-         * TODO
-         *
-         * [ ] If we found 2 ROCKS, update last unknown to GOLD
+         * [V] If we found 2 ROCKS, update last unknown to GOLD
          */
 
         if(goalType == GoalType.GOLD) {
@@ -275,6 +273,10 @@ public class AIPakSam extends AI {
                 goalData[2] = -1;
             }
         }
+
+        if(goalData[0] == -1 && goalData[1] == -1) goalData[2] = 1;
+        if(goalData[1] == -1 && goalData[2] == -1) goalData[0] = 1;
+        if(goalData[2] == -1 && goalData[0] == -1) goalData[1] = 1;
     }
 
     @Override
