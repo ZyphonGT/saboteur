@@ -60,7 +60,7 @@ public class AIPakSam extends AI {
 
         // Return the best move
 
-        Move m = Move.NewDiscardMove(index(), 0);
+        Move m;
        /*
         for(MoveHeu moveHeu:cardsHeu) {
             if(moveHeu.m.type() == Move.Type.PLAY_PATH) {
@@ -71,7 +71,12 @@ public class AIPakSam extends AI {
         */
 
        m = hc.maxHeu(cardsHeu).m;
-        return m;
+       if(m == null) {
+           System.out.println("Move empty!!!");
+           return Move.NewDiscardMove(index(), 0);
+       } else {
+           return m;
+       }
 
     }
 
@@ -208,12 +213,6 @@ public class AIPakSam extends AI {
             int x,y,rotate;
 
             /**
-             * STILL INCORRECT
-             *
-             * Baru cek lokasi terbaik kartunya SETELAH kartu itu ditaroh
-             *
-             * Harusnya ceknya pada saat sblm kartu itu ditaro
-             *
              * NOTE: Very BUGGY (Sering NullPointer)
              */
 
