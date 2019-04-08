@@ -53,12 +53,26 @@ public class AIPakSam extends AI {
     protected Move makeDecision() {
         calcHandHeu();
 
+        System.out.println("Goal TOP : " + goalData[0]);
+        System.out.println("Goal MID : " + goalData[1]);
+        System.out.println("Goal BOT : " + goalData[2]);
         // Pick the best heu in "MoveHeu cardsHeu"
 
         // Return the best move
 
         Move m = Move.NewDiscardMove(index(), 0);
+       /*
+        for(MoveHeu moveHeu:cardsHeu) {
+            if(moveHeu.m.type() == Move.Type.PLAY_PATH) {
+                m = moveHeu.m;
+                System.out.println("FOUND MAP MOVE");
+            }
+        }
+        */
+
+       m = hc.maxHeu(cardsHeu).m;
         return m;
+
     }
 
     private void calcHandHeu(){
@@ -171,6 +185,7 @@ public class AIPakSam extends AI {
         if(move.type() == Move.Type.PLAY_PATH) {
             System.out.println("Player " + move.playerIndex() + " PATH");
 
+
             float z1, z2;
             int x,y,rotate;
 
@@ -183,6 +198,7 @@ public class AIPakSam extends AI {
              *
              * NOTE: Very BUGGY (Sering NullPointer)
              */
+
 
             ArrayList<Move> m = new ArrayList<>();
             m.addAll(generatePossiblePaths(move.handIndex(),(PathCard) move.card()));
@@ -197,7 +213,6 @@ public class AIPakSam extends AI {
 
             z2 = hc.calcHeuCellPath((PathCard) move.card(), move, isMiner);
             System.out.println("Z2 = "+z2);
-
         }
 
         if(move.type() == Move.Type.PLAY_ROCKFALL) {
@@ -241,7 +256,7 @@ public class AIPakSam extends AI {
         // This method is called with two conditions:
         // - you played a map card
         // - a path card is placed so that a goal card is reached
-
+        System.out.println("ONGOALOPEN");
         /**
          * [V] If we found 2 ROCKS, update last unknown to GOLD
          */

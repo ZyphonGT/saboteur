@@ -214,7 +214,7 @@ public class HeuChecker {
         }
     }
 
-    private MoveHeu maxHeu(ArrayList<MoveHeu> possibleMoves) {
+    public MoveHeu maxHeu(ArrayList<MoveHeu> possibleMoves) {
         MoveHeu bestMove = new MoveHeu(-MAX_VALUE);
 
         for (MoveHeu curr:possibleMoves) {
