@@ -189,18 +189,47 @@ public class HeuChecker {
     protected MoveHeu calcHeuCardMap(int playerIndex, int cardIndex, int[] goalData) {
         ArrayList<MoveHeu> allMoveHeu = new ArrayList<>();
 
+        float topHeu = 1;
+        float midHeu = 1;
+        float botHeu = 1;
+
+        if(goalData[0] == 0) {
+            Move topMove = Move.NewMapMove(playerIndex, cardIndex, Board.GoalPosition.TOP);
+            topHeu = k1;
+            allMoveHeu.add(new MoveHeu(topMove, topHeu));
+        }
+
+        if(goalData[1] == 0) {
+            Move topMove = Move.NewMapMove(playerIndex, cardIndex, Board.GoalPosition.MIDDLE);
+            midHeu = k1;
+            allMoveHeu.add(new MoveHeu(topMove, midHeu));
+        }
+
+        if(goalData[2] == 0) {
+            Move topMove = Move.NewMapMove(playerIndex, cardIndex, Board.GoalPosition.BOTTOM);
+            botHeu = k1;
+            allMoveHeu.add(new MoveHeu(topMove, botHeu));
+        }
+
+
+
+        /*
+        //PAK SAM's Algorithm
         Move topMove = Move.NewMapMove(playerIndex, cardIndex, Board.GoalPosition.TOP);
         Move midMove = Move.NewMapMove(playerIndex, cardIndex, Board.GoalPosition.MIDDLE);
         Move botMove = Move.NewMapMove(playerIndex, cardIndex, Board.GoalPosition.BOTTOM);
+
+
 
         float topHeu = (1+0.5f*goalData[0])*k1;
         float midHeu = (1+0.5f*goalData[1])*k1;
         float botHeu = (1+0.5f*goalData[2])*k1;
 
+
         allMoveHeu.add(new MoveHeu(topMove, topHeu));
         allMoveHeu.add(new MoveHeu(midMove, midHeu));
         allMoveHeu.add(new MoveHeu(botMove, botHeu));
-
+        */
         return maxHeu(allMoveHeu);
     }
 

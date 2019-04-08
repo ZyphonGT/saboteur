@@ -13,7 +13,9 @@ public class AIPakSam extends AI {
     boolean isMiner;
     int[] goalData = {0,0,0}; // 0 Unknwon, -1 Rock, 1 Gold (Top, Mid, Bot)
     HeuChecker hc;
+
     ArrayList<Card> currHand = new ArrayList<>();
+    RolePredictor rp;
 
     ArrayList<MoveHeu> cardsHeu = new ArrayList<>();
 
@@ -53,9 +55,9 @@ public class AIPakSam extends AI {
     protected Move makeDecision() {
         calcHandHeu();
 
-        System.out.println("Goal TOP : " + goalData[0]);
-        System.out.println("Goal MID : " + goalData[1]);
-        System.out.println("Goal BOT : " + goalData[2]);
+//        System.out.println("Goal TOP : " + goalData[0]);
+//        System.out.println("Goal MID : " + goalData[1]);
+//        System.out.println("Goal BOT : " + goalData[2]);
         // Pick the best heu in "MoveHeu cardsHeu"
 
         // Return the best move
@@ -162,11 +164,11 @@ public class AIPakSam extends AI {
         ArrayList<Move> possibleMoves = new ArrayList<>();
 
         card.setRotated(false);
-        Set<Position> posNormal = game.board().getPlaceable(card);
+        Set<Position> posNormal = game().board().getPlaceable(card);
         posNormal.forEach(p -> possibleMoves.add(Move.NewPathMove(index(), cardIndex, p.x, p.y, false)));
 
         card.setRotated(true);
-        Set<Position> posRotated = game.board().getPlaceable(card);
+        Set<Position> posRotated = game().board().getPlaceable(card);
         posRotated.forEach(p -> possibleMoves.add(Move.NewPathMove(index(), cardIndex, p.x, p.y, true)));
 
 
@@ -204,23 +206,23 @@ public class AIPakSam extends AI {
 
     protected void onOtherPlayerMove(Move move) {
 
+        /**
+         * TODO
+         * [ ] Pathcard (On Progress)
+         * [ ] Rockfall
+         * [ ] Blockcard
+         * [ ] Repair
+         * [ ] Discard
+         *
+         */
 
         if(move.type() == Move.Type.PLAY_PATH) {
             System.out.println("Player " + move.playerIndex() + " PATH");
-
-
             float z1, z2;
             int x,y,rotate;
 
-            /**
-             * NOTE: Very BUGGY (Sering NullPointer)
-             */
-
-
             ArrayList<Move> m = new ArrayList<>();
-
             BoardDelta bd = (BoardDelta) move.delta();
-
             m.addAll(generatePossiblePaths(move.handIndex(),(PathCard) move.card(), bd.boardBefore()));
 
             MoveHeu bestMove = hc.calcHeuCardPath((PathCard) move.card(), m, isMiner);
@@ -323,7 +325,11 @@ public class AIPakSam extends AI {
         } else {
             isMiner = false;
         }
-        hc = new HeuChecker(5, 8,3,3,3,1,25,30,5,5);
+
+        hc = new HeuChecker(5, 50,3,3,3,1,25,30,5,5);
+
+        rp = new RolePredictor(index(), game().numPlayers(), game().numSaboteurs(),2);
+
         game = game();
     }
 }
