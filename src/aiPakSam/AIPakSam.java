@@ -171,6 +171,24 @@ public class AIPakSam extends AI {
         return possibleMoves;
     }
 
+    private ArrayList<Move> generatePossiblePaths(int cardIndex, PathCard card, Board oldBoard) {
+        ArrayList<Move> possibleMoves = new ArrayList<>();
+
+        card.setRotated(false);
+        Set<Position> posNormal = oldBoard.getPlaceable(card);
+        posNormal.forEach(p -> possibleMoves.add(Move.NewPathMove(index(), cardIndex, p.x, p.y, false)));
+
+        card.setRotated(true);
+        Set<Position> posRotated = oldBoard.getPlaceable(card);
+        posRotated.forEach(p -> possibleMoves.add(Move.NewPathMove(index(), cardIndex, p.x, p.y, true)));
+
+
+//    //System.out.print(card + " => ");
+//    //System.out.print(posNormal);
+//    //System.out.println(posRotated);
+        return possibleMoves;
+    }
+
     private ArrayList<Move> generatePossibleRockfall(int cardIndex) {
         ArrayList<Move> possibleMoves = new ArrayList<>();
         Set<Position> positions = game().board().getDestroyable();
@@ -201,7 +219,10 @@ public class AIPakSam extends AI {
 
 
             ArrayList<Move> m = new ArrayList<>();
-            m.addAll(generatePossiblePaths(move.handIndex(),(PathCard) move.card()));
+
+            BoardDelta bd = (BoardDelta) move.delta();
+
+            m.addAll(generatePossiblePaths(move.handIndex(),(PathCard) move.card(), bd.boardBefore()));
 
             MoveHeu bestMove = hc.calcHeuCardPath((PathCard) move.card(), m, isMiner);
             x = bestMove.m.args()[0];
@@ -209,10 +230,10 @@ public class AIPakSam extends AI {
             rotate = bestMove.m.args()[2];
 
             z1 = bestMove.heu;
-            System.out.println("Z1 = "+z1 +" at "+x+","+y+", rotate="+rotate);
+            System.out.println("Best Possible = "+z1 +" at ("+x+","+y+") rotate="+rotate);
 
             z2 = hc.calcHeuCellPath((PathCard) move.card(), move, isMiner);
-            System.out.println("Z2 = "+z2);
+            System.out.println("Actual = "+z2 +" at ("+move.args()[0]+","+move.args()[1]+") rotate="+move.args()[2]);
         }
 
         if(move.type() == Move.Type.PLAY_ROCKFALL) {
@@ -256,7 +277,7 @@ public class AIPakSam extends AI {
         // This method is called with two conditions:
         // - you played a map card
         // - a path card is placed so that a goal card is reached
-        System.out.println("ONGOALOPEN");
+//        System.out.println("ONGOALOPEN");
         /**
          * [V] If we found 2 ROCKS, update last unknown to GOLD
          */
