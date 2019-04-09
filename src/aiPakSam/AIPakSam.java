@@ -4,6 +4,7 @@ import ai.AI;
 import model.*;
 import model.cards.Card;
 import model.cards.PathCard;
+import model.cards.PlayerActionCard;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -11,7 +12,7 @@ import java.util.Set;
 public class AIPakSam extends AI {
 
     boolean isMiner;
-    int[] goalData = {0,0,0}; // 0 Unknwon, -1 Rock, 1 Gold (Top, Mid, Bot)
+    int[] goalData = {0,0,0}; // 0 Unknown, -1 Rock, 1 Gold (Top, Mid, Bot)
     HeuChecker hc;
 
     ArrayList<Card> currHand = new ArrayList<>();
@@ -30,17 +31,17 @@ public class AIPakSam extends AI {
      * [V] Buat method untuk menghitung HueCard untuk Map
      * [V] Buat method untuk menghitung HueCard untuk Rock-Fall
      *
-     * [ ] Buat method untuk prediksi musuh/teman
-     *      [ ] Pathcard
+     * [V] Buat method untuk prediksi musuh/teman
+     *      [V] Pathcard
      *      [ ] Rock-Fall
      *      [ ] Block
      *      [ ] Repair
      *      [ ] Discard
      *
-     * [ ] Buat method untuk menghitung HueCard untuk Block
+     * [V] Buat method untuk menghitung HueCard untuk Block
      * [ ] Buat method untuk menghitung HueCard untuk Repair
      * [ ] Buat method untuk menghitung HueCard untuk Discard
-     *
+     * [ ] Bantu wilbert kerjain
      * NOTE: Nilai HEU tinggi == Preferable Move untuk ROLE KITA
      */
 
@@ -110,8 +111,18 @@ public class AIPakSam extends AI {
 
             }
 
-            if(c.type() == Card.Type.BLOCK) {
+            if(c instanceof PlayerActionCard && c.type() == Card.Type.BLOCK) {
                 System.out.print("Block ");
+
+                tempMoves.addAll(generatePossibleBlocks(cardIndex, (PlayerActionCard) c));
+
+                // Only If card can be placed
+                if(!tempMoves.isEmpty()) {
+                    MoveHeu temp = hc.calcHeuCardBlock(cardIndex, tempMoves, game(), rp.potFoes);
+                    if(temp.m != null) {
+                        cardsHeu.add(temp);
+                    }
+                }
             }
 
             if(c.type() == Card.Type.REPAIR) {
@@ -144,6 +155,7 @@ public class AIPakSam extends AI {
             for (MoveHeu temp: cardsHeu) {
 
                 Move x = temp.m;
+
                 int index = x.handIndex();
                 Card card = currHand.get(index);
                 Card.Type tipe = card.type();
@@ -154,10 +166,14 @@ public class AIPakSam extends AI {
 
                 if(tipe == Card.Type.PATHWAY || tipe == Card.Type.DEADEND) {
                     System.out.println("at "+x.args()[0]+","+x.args()[1]+" rotated="+x.args()[2]);
+                } else if(tipe == Card.Type.MAP && x.type() == Move.Type.DISCARD) {
+                    System.out.println("discarded" );
                 } else if(tipe == Card.Type.MAP) {
                     System.out.println("to "+x.args()[0]);
                 } else if(tipe == Card.Type.ROCKFALL) {
                     System.out.println("at "+x.args()[0]+","+x.args()[1]);
+                }  else if(tipe == Card.Type.BLOCK) {
+                    System.out.println("to Player "+x.args()[0]);
                 }
             }
 
@@ -209,6 +225,20 @@ public class AIPakSam extends AI {
         return possibleMoves;
     }
 
+    private ArrayList<Move> generatePossibleBlocks(int cardIndex, PlayerActionCard card) {
+        ArrayList<Move> possibleMoves = new ArrayList<>();
+        int numPlayers = game().numPlayers();
+
+        for (int i = 0; i < numPlayers; ++i) {
+            if (i == index()) continue;
+            Player p = game().playerAt(i);
+
+            if (card.type() == Card.Type.BLOCK && p.isSabotageable(card.effects()[0])) {
+                possibleMoves.add(Move.NewPlayerActionMove(index(), cardIndex, i));
+            }
+        }
+        return possibleMoves;
+    }
 
     protected void onOtherPlayerMove(Move move) {
         ArrayList<Float> heus;
@@ -276,6 +306,7 @@ public class AIPakSam extends AI {
         if(move.type() == Move.Type.DISCARD) {
             System.out.println("Player " + move.playerIndex() + " DISCARD");
         }
+        System.out.println("");
     }
     /*
     protected void onPlayerMove(Move move, Card newCard) {
@@ -341,9 +372,9 @@ public class AIPakSam extends AI {
             isMiner = false;
         }
 
-        hc = new HeuChecker(5, 50,3,3,3,1,25,30,5,5);
+        hc = new HeuChecker(5, 50,3,10,3,1,25,30,5,5);
 
-        rp = new RolePredictor(index(), game().numPlayers(), game().numSaboteurs(),2,2,0.5f,0.75f,isMiner);
+        rp = new RolePredictor(index(), game().numPlayers(), game().numSaboteurs(),1,1,0.5f,0.75f,isMiner);
 
         game = game();
     }

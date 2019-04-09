@@ -45,7 +45,7 @@ public class HeuChecker {
      *   - int      val()               {-2(Rock), 0(Deadend), 1(Path)}
      */
 
-    protected MoveHeu calcHeuCardPath(PathCard path, ArrayList<Move> targets, boolean isMiner) {
+    MoveHeu calcHeuCardPath(PathCard path, ArrayList<Move> targets, boolean isMiner) {
 
         /*
 //        NOT USED, since targets is guaranteed to be NOT empty
@@ -127,7 +127,7 @@ public class HeuChecker {
         return maxHeu(allMoveHeu);
     }
 
-    protected ArrayList<Float> calcHeuCardPathFloats(PathCard path, ArrayList<Move> targets, boolean isMiner) {
+    ArrayList<Float> calcHeuCardPathFloats(PathCard path, ArrayList<Move> targets, boolean isMiner) {
 
         ArrayList<Float> heus = new ArrayList<>();
 
@@ -174,7 +174,7 @@ public class HeuChecker {
         return heus;
     }
 
-    protected float calcHeuCellPath(PathCard path, Move target, boolean isMiner) {
+    float calcHeuCellPath(PathCard path, Move target, boolean isMiner) {
         float bmove = 0;
 
 //        System.out.println("Inside heuChecker");
@@ -233,12 +233,17 @@ public class HeuChecker {
         return bmove;
     }
 
-    protected MoveHeu calcHeuCardMap(int playerIndex, int cardIndex, int[] goalData) {
+    MoveHeu calcHeuCardMap(int playerIndex, int cardIndex, int[] goalData) {
         ArrayList<MoveHeu> allMoveHeu = new ArrayList<>();
 
         float topHeu = 1;
         float midHeu = 1;
         float botHeu = 1;
+
+        //Gold Known
+        if(goalData[0] == 1 || goalData[1] == 1 || goalData[2] == 1) {
+            return new MoveHeu(Move.NewDiscardMove(playerIndex,cardIndex), 2.0f);
+        }
 
         if(goalData[0] == 0) {
             Move topMove = Move.NewMapMove(playerIndex, cardIndex, Board.GoalPosition.TOP);
@@ -280,7 +285,7 @@ public class HeuChecker {
         return maxHeu(allMoveHeu);
     }
 
-    protected MoveHeu calcHeuCardRockFall(ArrayList<Move> targets, boolean isMiner, Board board) {
+    MoveHeu calcHeuCardRockFall(ArrayList<Move> targets, boolean isMiner, Board board) {
         ArrayList<MoveHeu> allMoveHeu = new ArrayList<>();
         float heu = 0;
 
@@ -306,7 +311,25 @@ public class HeuChecker {
         }
     }
 
-    public MoveHeu maxHeu(ArrayList<MoveHeu> possibleMoves) {
+    MoveHeu calcHeuCardBlock(int cardIndex, ArrayList<Move> targets, GameLogicController game, ArrayList<RolePrediction> potFoes) {
+        ArrayList<MoveHeu> allMoveHeu = new ArrayList<>();
+        float tempHeu;
+
+        for (Move m: targets) {
+            tempHeu = 0;
+
+            for(RolePrediction r: potFoes) {
+                if (m.args()[0] == r.targetIndex) {
+                    tempHeu = k3;
+                    allMoveHeu.add(new MoveHeu(m,tempHeu));
+                }
+            }
+        }
+
+        return maxHeu(allMoveHeu);
+    }
+
+    MoveHeu maxHeu(ArrayList<MoveHeu> possibleMoves) {
         MoveHeu bestMove = new MoveHeu(-MAX_VALUE);
 
         for (MoveHeu curr:possibleMoves) {
