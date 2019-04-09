@@ -35,10 +35,10 @@ public class AIPakSam extends AI {
      *
      * [V] Buat method untuk prediksi musuh/teman
      *      [V] Pathcard
-     *      [ ] Rock-Fall
-     *      [ ] Block
-     *      [ ] Repair
-     *      [ ] Discard
+     *      [V] Rock-Fall
+     *      [V] Block
+     *      [V] Repair
+     *      [X] Discard
      *
      * [V] Buat method untuk menghitung HueCard untuk Block
      * [V] Buat method untuk menghitung HueCard untuk Repair
@@ -295,10 +295,10 @@ public class AIPakSam extends AI {
         /**
          * TODO
          * [V] Pathcard
-         * [ ] Rockfall
-         * [ ] Blockcard
-         * [ ] Repair
-         * [ ] Discard
+         * [V] Rockfall
+         * [V] Block
+         * [V] Repair
+         * [X] Discard
          */
 
         /************
@@ -393,11 +393,15 @@ public class AIPakSam extends AI {
             if(move.card().type() == Card.Type.BLOCK) {
                 System.out.println("Player " + move.playerIndex() + " BLOCK");
 
+                rp.updatePredictionBlock(move, index());
+
             /************
              *  REPAIR  *
              ************/
             } else if(move.card().type() == Card.Type.REPAIR) {
                 System.out.println("Player " + move.playerIndex() + " REPAIR");
+
+                rp.updatePredictionRepair(move, index());
             }
         }
 

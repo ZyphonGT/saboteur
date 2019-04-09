@@ -1,5 +1,7 @@
 package aiPakSam;
 
+import model.Move;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -88,6 +90,54 @@ public class RolePredictor {
 
         // Add Score to History RP & Update records of mistakes/corrects
         target.addScore(actualHeu, batasBawah, batasAtas);
+    }
+
+    protected void updatePredictionBlock(Move move, int myIndex) {
+        RolePrediction target = getRP(move.playerIndex());
+
+        int blockVictim = move.args()[0];
+
+        if(blockVictim == myIndex) {
+            target.addMistake();
+        }
+
+        for (RolePrediction temp : potFriends) {
+            if(temp.targetIndex == blockVictim) {
+                target.addMistake();
+                return;
+            }
+        }
+
+        for (RolePrediction temp : potFoes) {
+            if(temp.targetIndex == blockVictim) {
+                target.addCorrect();
+                return;
+            }
+        }
+    }
+
+    protected void updatePredictionRepair(Move move, int myIndex) {
+        RolePrediction target = getRP(move.playerIndex());
+
+        int repairVictim = move.args()[0];
+
+        if(repairVictim == myIndex) {
+            target.addCorrect();
+        }
+
+        for (RolePrediction temp : potFriends) {
+            if(temp.targetIndex == repairVictim) {
+                target.addCorrect();
+                return;
+            }
+        }
+
+        for (RolePrediction temp : potFoes) {
+            if(temp.targetIndex == repairVictim) {
+                target.addMistake();
+                return;
+            }
+        }
     }
 
     protected void updateListOfRoles() {

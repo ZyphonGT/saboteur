@@ -24,21 +24,33 @@ public class RolePrediction {
             System.out.println("Normal Move (only one heu)");
         } else if(heu <= batasBawah){
             System.out.println("BAD MOVE!");
-            if(goodMoves == 0) {
-                this.badMoves++;
-            } else {
-                this.goodMoves--;
-            }
+            addMistake();
         } else if (heu >= batasAtas) {
             System.out.println("GOOD MOVE!");
-            if(badMoves == 0) {
-                this.goodMoves++;
-            } else {
-                this.badMoves--;
-            }
+            addCorrect();
         } else {
             System.out.println("Normal Move. (Not in extreme range)");
         }
+    }
+
+    public void addMistake() {
+        if(goodMoves == 0) {
+            this.badMoves++;
+        } else {
+            this.goodMoves--;
+        }
+    }
+
+    public void addCorrect() {
+        if(badMoves == 0) {
+            this.goodMoves++;
+        } else {
+            this.badMoves--;
+        }
+    }
+
+    public void addScoreBlockRepair() {
+
     }
 
 
