@@ -329,6 +329,24 @@ public class HeuChecker {
         return maxHeu(allMoveHeu);
     }
 
+    MoveHeu calcHeuCardRepair(int cardIndex, ArrayList<Move> targets, GameLogicController game, ArrayList<RolePrediction> potFriends) {
+        ArrayList<MoveHeu> allMoveHeu = new ArrayList<>();
+        float tempHeu;
+
+        for (Move m: targets) {
+            tempHeu = 0;
+
+            for(RolePrediction r: potFriends) {
+                if (m.args()[0] == r.targetIndex) {
+                    tempHeu = k4;
+                    allMoveHeu.add(new MoveHeu(m,tempHeu));
+                }
+            }
+        }
+
+        return maxHeu(allMoveHeu);
+    }
+
     MoveHeu maxHeu(ArrayList<MoveHeu> possibleMoves) {
         MoveHeu bestMove = new MoveHeu(-MAX_VALUE);
 

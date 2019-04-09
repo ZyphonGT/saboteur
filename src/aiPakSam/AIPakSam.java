@@ -39,9 +39,9 @@ public class AIPakSam extends AI {
      *      [ ] Discard
      *
      * [V] Buat method untuk menghitung HueCard untuk Block
-     * [ ] Buat method untuk menghitung HueCard untuk Repair
+     * [V] Buat method untuk menghitung HueCard untuk Repair
      * [ ] Buat method untuk menghitung HueCard untuk Discard
-     * [ ] Bantu wilbert kerjain
+     *
      * NOTE: Nilai HEU tinggi == Preferable Move untuk ROLE KITA
      */
 
@@ -125,8 +125,24 @@ public class AIPakSam extends AI {
                 }
             }
 
-            if(c.type() == Card.Type.REPAIR) {
+            if(c instanceof PlayerActionCard && c.type() == Card.Type.REPAIR) {
                 System.out.print("Repair ");
+
+                MoveHeu selfRepair = useRepairToSelf(cardIndex, (PlayerActionCard) c);
+
+                if(selfRepair.m != null) {
+                    cardsHeu.add(selfRepair);
+                } else {
+                    tempMoves.addAll(generatePossibleRepairs(cardIndex,(PlayerActionCard) c));
+                    // Only If card can be placed
+                    if(!tempMoves.isEmpty()) {
+                        MoveHeu temp = hc.calcHeuCardRepair(cardIndex, tempMoves, game(), rp.potFriends);
+                        if(temp.m != null) {
+                            cardsHeu.add(temp);
+                        }
+                    }
+                }
+
             }
 
             if(c.type() == Card.Type.MAP) {
@@ -174,12 +190,25 @@ public class AIPakSam extends AI {
                     System.out.println("at "+x.args()[0]+","+x.args()[1]);
                 }  else if(tipe == Card.Type.BLOCK) {
                     System.out.println("to Player "+x.args()[0]);
+                }  else if(tipe == Card.Type.REPAIR) {
+                    System.out.println("to Player "+x.args()[0]);
                 }
             }
 
         }
 
         System.out.println("");
+    }
+
+    private MoveHeu useRepairToSelf(int cardIndex, PlayerActionCard card) {
+        Player me = game().playerAt(index());
+
+        if (card.type() == Card.Type.REPAIR && me.isRepairable(card.effects())) {
+            Move m = Move.NewPlayerActionMove(index(), cardIndex, index());
+            return new MoveHeu(m,10.0f);
+        }
+
+        return new MoveHeu(null,0.0f);
     }
 
     private ArrayList<Move> generatePossiblePaths(int cardIndex, PathCard card) {
@@ -234,6 +263,21 @@ public class AIPakSam extends AI {
             Player p = game().playerAt(i);
 
             if (card.type() == Card.Type.BLOCK && p.isSabotageable(card.effects()[0])) {
+                possibleMoves.add(Move.NewPlayerActionMove(index(), cardIndex, i));
+            }
+        }
+        return possibleMoves;
+    }
+
+    private ArrayList<Move> generatePossibleRepairs(int cardIndex, PlayerActionCard card) {
+        ArrayList<Move> possibleMoves = new ArrayList<>();
+        int numPlayers = game().numPlayers();
+
+        for (int i = 0; i < numPlayers; ++i) {
+            if (i == index()) continue;
+            Player p = game().playerAt(i);
+
+            if (card.type() == Card.Type.REPAIR && p.isRepairable(card.effects())) {
                 possibleMoves.add(Move.NewPlayerActionMove(index(), cardIndex, i));
             }
         }
@@ -372,9 +416,9 @@ public class AIPakSam extends AI {
             isMiner = false;
         }
 
-        hc = new HeuChecker(5, 50,3,10,3,1,25,30,5,5);
+        hc = new HeuChecker(5, 50,3,7,8,1,25,30,5,5);
 
-        rp = new RolePredictor(index(), game().numPlayers(), game().numSaboteurs(),1,1,0.5f,0.75f,isMiner);
+        rp = new RolePredictor(index(), game().numPlayers(), game().numSaboteurs(),2,1,0.5f,0.75f,isMiner);
 
         game = game();
     }
