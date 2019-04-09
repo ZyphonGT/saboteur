@@ -127,6 +127,53 @@ public class HeuChecker {
         return maxHeu(allMoveHeu);
     }
 
+    protected ArrayList<Float> calcHeuCardPathFloats(PathCard path, ArrayList<Move> targets, boolean isMiner) {
+
+        ArrayList<Float> heus = new ArrayList<>();
+
+        float bmove = 0;
+
+        for(Move trgtMove : targets) {
+            bmove = 0;
+            if(trgtMove.args()[1] == 0 && path.sides()[1].val() == 1 && path.sides()[2].val() == 1 ) {
+                bmove = bmove + 0.3f*(2);
+            }
+
+            if(trgtMove.args()[1] < 4 && trgtMove.args()[1] > 0 ) {
+                int top     = path.sides()[0].val();
+                int right   = path.sides()[1].val();
+                int bot     = path.sides()[2].val();
+
+                bmove = bmove + 0.3f*(top+right+bot)+0.1f;
+            }
+
+            if(trgtMove.args()[1] == 4 && path.sides()[1].val() == 1 && path.sides()[0].val() == 1 ) {
+                bmove = bmove + 0.3f*(2);
+            }
+
+            if(path.type() == Card.Type.PATHWAY && isMiner) {
+                bmove = bmove + 0.1f * (1 + trgtMove.args()[0]) / possibleGold;
+            }
+
+            if(path.type() == Card.Type.PATHWAY && !isMiner) {
+                bmove = bmove + 0.1f * (9 - trgtMove.args()[0]) / possibleGold;
+            }
+
+            if(path.type() == Card.Type.DEADEND && isMiner) {
+                bmove = bmove + 0.1f * (9 - trgtMove.args()[0]) / possibleGold;
+            }
+
+            if(path.type() == Card.Type.DEADEND && !isMiner) {
+                bmove = bmove + 0.1f * (1 + trgtMove.args()[0]) / possibleGold;
+            }
+
+            bmove = bmove + k0;
+            heus.add(bmove);
+        }
+
+        return heus;
+    }
+
     protected float calcHeuCellPath(PathCard path, Move target, boolean isMiner) {
         float bmove = 0;
 

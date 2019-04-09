@@ -40,6 +40,8 @@ public class AIPakSam extends AI {
      * [ ] Buat method untuk menghitung HueCard untuk Block
      * [ ] Buat method untuk menghitung HueCard untuk Repair
      * [ ] Buat method untuk menghitung HueCard untuk Discard
+     *
+     * NOTE: Nilai HEU tinggi == Preferable Move untuk ROLE KITA
      */
 
     /**
@@ -53,6 +55,8 @@ public class AIPakSam extends AI {
 
     @Override
     protected Move makeDecision() {
+        //Updates the rp.potFriends and rp.potFoes
+        rp.updateListOfRoles();
         calcHandHeu();
 
 //        System.out.println("Goal TOP : " + goalData[0]);
@@ -126,7 +130,9 @@ public class AIPakSam extends AI {
                 Board board = game().board();
 
                 tempMoves.addAll(generatePossibleRockfall(cardIndex));
-                cardsHeu.add(hc.calcHeuCardRockFall(tempMoves, isMiner, board));
+                if(!tempMoves.isEmpty()) {
+                    cardsHeu.add(hc.calcHeuCardRockFall(tempMoves, isMiner, board));
+                }
 
             }
 
@@ -205,7 +211,7 @@ public class AIPakSam extends AI {
 
 
     protected void onOtherPlayerMove(Move move) {
-
+        ArrayList<Float> heus;
         /**
          * TODO
          * [ ] Pathcard (On Progress)
@@ -213,7 +219,6 @@ public class AIPakSam extends AI {
          * [ ] Blockcard
          * [ ] Repair
          * [ ] Discard
-         *
          */
 
         if(move.type() == Move.Type.PLAY_PATH) {
@@ -221,11 +226,22 @@ public class AIPakSam extends AI {
             float z1, z2;
             int x,y,rotate;
 
+
             ArrayList<Move> m = new ArrayList<>();
             BoardDelta bd = (BoardDelta) move.delta();
             m.addAll(generatePossiblePaths(move.handIndex(),(PathCard) move.card(), bd.boardBefore()));
 
             MoveHeu bestMove = hc.calcHeuCardPath((PathCard) move.card(), m, isMiner);
+
+            heus = hc.calcHeuCardPathFloats((PathCard) move.card(), m, isMiner);
+
+
+            System.out.print("Heus: ");
+            for (Float f: heus) {
+                System.out.print(f+" ");
+            }
+            System.out.println("");
+
             x = bestMove.m.args()[0];
             y = bestMove.m.args()[1];
             rotate = bestMove.m.args()[2];
@@ -235,6 +251,8 @@ public class AIPakSam extends AI {
 
             z2 = hc.calcHeuCellPath((PathCard) move.card(), move, isMiner);
             System.out.println("Actual = "+z2 +" at ("+move.args()[0]+","+move.args()[1]+") rotate="+move.args()[2]);
+
+            rp.updatePrediction(z2,heus,move.playerIndex());
         }
 
         if(move.type() == Move.Type.PLAY_ROCKFALL) {
@@ -279,9 +297,6 @@ public class AIPakSam extends AI {
         // - you played a map card
         // - a path card is placed so that a goal card is reached
 //        System.out.println("ONGOALOPEN");
-        /**
-         * [V] If we found 2 ROCKS, update last unknown to GOLD
-         */
 
         if(goalType == GoalType.GOLD) {
             if(position == Board.GoalPosition.TOP) {
@@ -328,7 +343,7 @@ public class AIPakSam extends AI {
 
         hc = new HeuChecker(5, 50,3,3,3,1,25,30,5,5);
 
-        rp = new RolePredictor(index(), game().numPlayers(), game().numSaboteurs(),2);
+        rp = new RolePredictor(index(), game().numPlayers(), game().numSaboteurs(),2,2,0.5f,0.75f,isMiner);
 
         game = game();
     }
