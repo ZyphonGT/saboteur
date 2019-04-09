@@ -162,7 +162,7 @@ public class AIPakSam extends AI {
 
                 Board board = game().board();
 
-                tempMoves.addAll(generatePossibleRockfall(cardIndex));
+                tempMoves.addAll(generatePossibleRockfall(cardIndex,game().board()));
                 if(!tempMoves.isEmpty()) {
                     cardsHeu.add(hc.calcHeuCardRockFall(tempMoves, isMiner, board, goalData));
                 }
@@ -253,9 +253,9 @@ public class AIPakSam extends AI {
         return possibleMoves;
     }
 
-    private ArrayList<Move> generatePossibleRockfall(int cardIndex) {
+    private ArrayList<Move> generatePossibleRockfall(int cardIndex, Board board) {
         ArrayList<Move> possibleMoves = new ArrayList<>();
-        Set<Position> positions = game().board().getDestroyable();
+        Set<Position> positions = board.getDestroyable();
         positions.forEach(p -> possibleMoves.add(Move.NewRockfallMove(index(), cardIndex, p.x, p.y)));
         return possibleMoves;
     }
@@ -301,18 +301,26 @@ public class AIPakSam extends AI {
          * [ ] Discard
          */
 
+        /************
+         * PATHCARD *
+         ************/
+
         if(move.type() == Move.Type.PLAY_PATH) {
             System.out.println("Player " + move.playerIndex() + " PATH");
+
             float z1, z2;
             int x,y,rotate;
 
-
             ArrayList<Move> m = new ArrayList<>();
             BoardDelta bd = (BoardDelta) move.delta();
+
+            //Generate Move berdasarkan kondisi tadinya
             m.addAll(generatePossiblePaths(move.handIndex(),(PathCard) move.card(), bd.boardBefore()));
 
+            //Find bestMove
             MoveHeu bestMove = hc.calcHeuCardPath((PathCard) move.card(), m, isMiner);
 
+            //Get all possible heus
             heus = hc.calcHeuCardPathFloats((PathCard) move.card(), m, isMiner);
 
 
@@ -335,15 +343,59 @@ public class AIPakSam extends AI {
             rp.updatePrediction(z2,heus,move.playerIndex());
         }
 
+        /************
+         * ROCKFALL *
+         ************/
         if(move.type() == Move.Type.PLAY_ROCKFALL) {
             System.out.println("Player " + move.playerIndex() + " ROCKFALL");
+
+            float z1, z2;
+            int x,y;
+
+            ArrayList<Move> m = new ArrayList<>();
+            BoardDelta bd = (BoardDelta) move.delta();
+
+            //Generate Move berdasarkan kondisi tadinya
+            m.addAll(generatePossibleRockfall(move.handIndex(), bd.boardBefore()));
+
+            //Find bestMove
+            MoveHeu bestMove = hc.calcHeuCardRockFall(m,isMiner,bd.boardBefore(),goalData);
+
+            //Get all possible heus
+            heus = hc.calcHeuCardRockFallFloats(m, isMiner,bd.boardBefore(),goalData);
+
+
+            System.out.print("Heus: ");
+            for (Float f: heus) {
+                System.out.print(f+" ");
+            }
+            System.out.println("");
+
+            x = bestMove.m.args()[0];
+            y = bestMove.m.args()[1];
+
+            z1 = bestMove.heu;
+            System.out.println("Best Possible = "+z1 +" at ("+x+","+y+")");
+
+            z2 = hc.calcHeuCellRockFall(move, isMiner, bd.boardBefore(), goalData);
+            System.out.println("Actual = "+z2 +" at ("+move.args()[0]+","+move.args()[1]+")");
+
+            rp.updatePrediction(z2,heus,move.playerIndex());
+
         }
 
         if(move.type() == Move.Type.PLAY_PLAYER) {
 //            Player p = game().playerAt(move.args()[0]);
 
+            /***********
+             *  BLOCK  *
+             ***********/
             if(move.card().type() == Card.Type.BLOCK) {
                 System.out.println("Player " + move.playerIndex() + " BLOCK");
+
+            /************
+             *  REPAIR  *
+             ************/
             } else if(move.card().type() == Card.Type.REPAIR) {
                 System.out.println("Player " + move.playerIndex() + " REPAIR");
             }
