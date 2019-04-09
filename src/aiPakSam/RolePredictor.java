@@ -63,14 +63,14 @@ public class RolePredictor {
      *      b. [V] Jika benar(Threshold), goodMoves++
      *  5. [V] Input ScoreMove ke List
      *
-     *  6. [ ] Update potFriends dan potFoes
-     *      a. [ ] jika ada player yg badMoves >= maxBadMoves
+     *  6. [V] Update potFriends dan potFoes
+     *      a. [V] jika ada player yg badMoves >= maxBadMoves
      *              if( myRole == MINER )
      *                  masukin ke potFriends
      *              else
      *                  masukin ke potFoes
      *
-     *      b. [ ] Jika ada player yg goodMoves >= minGoodMoves
+     *      b. [V] Jika ada player yg goodMoves >= minGoodMoves
      *              if( myRole == SABOTEUR )
      *                  masukin ke potFriends
      *              else

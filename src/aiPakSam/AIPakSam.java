@@ -28,8 +28,10 @@ public class AIPakSam extends AI {
     /**
      * TO-DO LIST
      * [V] Buat method untuk menghitung HueCard untuk Path
-     * [V] Buat method untuk menghitung HueCard untuk Map
+     *      [ ] Updated Version
+     * [V] Buat method untuk menghitung HueCard untuk Map (Udah sama discard)
      * [V] Buat method untuk menghitung HueCard untuk Rock-Fall
+     *      [V] Updated Version
      *
      * [V] Buat method untuk prediksi musuh/teman
      *      [V] Pathcard
@@ -41,6 +43,10 @@ public class AIPakSam extends AI {
      * [V] Buat method untuk menghitung HueCard untuk Block
      * [V] Buat method untuk menghitung HueCard untuk Repair
      * [ ] Buat method untuk menghitung HueCard untuk Discard
+     *      - Daftar Discard SABOTEUR
+     *          - 4-Path
+     *      - Daftar Discard GoldMiner
+     *          - Dead-end
      *
      * NOTE: Nilai HEU tinggi == Preferable Move untuk ROLE KITA
      */
@@ -158,7 +164,7 @@ public class AIPakSam extends AI {
 
                 tempMoves.addAll(generatePossibleRockfall(cardIndex));
                 if(!tempMoves.isEmpty()) {
-                    cardsHeu.add(hc.calcHeuCardRockFall(tempMoves, isMiner, board));
+                    cardsHeu.add(hc.calcHeuCardRockFall(tempMoves, isMiner, board, goalData));
                 }
 
             }
@@ -288,7 +294,7 @@ public class AIPakSam extends AI {
         ArrayList<Float> heus;
         /**
          * TODO
-         * [ ] Pathcard (On Progress)
+         * [V] Pathcard
          * [ ] Rockfall
          * [ ] Blockcard
          * [ ] Repair
@@ -416,7 +422,7 @@ public class AIPakSam extends AI {
             isMiner = false;
         }
 
-        hc = new HeuChecker(5, 50,3,7,8,1,25,30,5,5);
+        hc = new HeuChecker(5, 50,3,7,8,2,25,30,5,5);
 
         rp = new RolePredictor(index(), game().numPlayers(), game().numSaboteurs(),2,1,0.5f,0.75f,isMiner);
 

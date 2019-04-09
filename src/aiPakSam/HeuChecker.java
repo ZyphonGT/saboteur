@@ -285,11 +285,13 @@ public class HeuChecker {
         return maxHeu(allMoveHeu);
     }
 
-    MoveHeu calcHeuCardRockFall(ArrayList<Move> targets, boolean isMiner, Board board) {
+    MoveHeu calcHeuCardRockFall(ArrayList<Move> targets, boolean isMiner, Board board, int[] goalData) {
         ArrayList<MoveHeu> allMoveHeu = new ArrayList<>();
-        float heu = 0;
+        float heu;
 
         for(Move m : targets) {
+
+            /*
             if(m.args()[0] < 6) {
                 heu = 0.5f*k2;
             } else {
@@ -301,14 +303,61 @@ public class HeuChecker {
 
                 heu = top + right + bot + left;
             }
+            */
+
+            heu = 0;
+            PathCard c = (PathCard) board.cellAt(m.args()[0],m.args()[1]).card();
+
+            if(!isMiner) {
+                int top     = c.topSide().val();
+                int right   = c.rightSide().val();
+                int bottom  = c.bottomSide().val();
+
+                heu += (top+ right + bottom/6)*4;
+                heu += (1+m.args()[0])/9.0f*5.0f;
+                if(goalData[0] == 1) {
+                    heu += (4-m.args()[1])/4.0f*5.0f;
+                } else if(goalData[1] == 1) {
+                    heu += (2 -(Math.abs(m.args()[1]-2)))/2.0f * 5.0f;
+                } else if(goalData[2] == 1) {
+                    heu += m.args()[1] / 4.0f * 5.0f;
+                } else {
+                    heu += (2 -(Math.abs(m.args()[1]-2.0f)))/2.0f * 3.0f;
+                }
+                System.out.println("Heu Rockfall: "+heu);
+            } else {
+                int top     = c.topSide().val();
+                int right   = c.rightSide().val();
+                int bottom  = c.bottomSide().val();
+                int left    = c.leftSide().val();
+
+                heu += ((top + right + bottom + left)/(-8.0f))*10.0f;
+                heu += (1+m.args()[0])/9.0f*2.0f;
+                if(goalData[0] == 1) {
+                    heu += (4-m.args()[1])/4.0f*2.0f;
+                } else if(goalData[1] == 1) {
+                    heu += (2 -(Math.abs(m.args()[1]-2)))/2.0f * 2.0f;
+                } else if(goalData[2] == 1) {
+                    heu += m.args()[1] / 4.0f * 5.0f;
+                } else {
+                    heu += (2 -(Math.abs(m.args()[1]-2.0f)))/2.0f * 2.0f;
+                }
+                System.out.println("Heu Rockfall: "+heu);
+            }
+
+
             allMoveHeu.add(new MoveHeu(m,heu));
         }
 
+        return maxHeu(allMoveHeu);
+        /*
         if(isMiner) {
             return minHeu(allMoveHeu);
         } else {
             return maxHeu(allMoveHeu);
         }
+        */
+
     }
 
     MoveHeu calcHeuCardBlock(int cardIndex, ArrayList<Move> targets, GameLogicController game, ArrayList<RolePrediction> potFoes) {
