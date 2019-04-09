@@ -19,7 +19,6 @@ public class Main extends Application {
     TestAI testAI1 = new TestAI("BOT0");
     TestAI testAI2 = new TestAI("BOT1");
     TestAI testAI3 = new TestAI("BOT2");
-//    TestAI testAI4 = new TestAI("BOT3");
 
     //
 //    GUIGamePlayer testAI1 = new GUIGamePlayer("BOT0");
