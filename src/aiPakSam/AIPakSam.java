@@ -112,7 +112,8 @@ public class AIPakSam extends AI {
 
                 // Only If card can be placed
                 if(!tempMoves.isEmpty()) {
-                    cardsHeu.add(hc.calcHeuCardPath((PathCard)c, tempMoves, isMiner));
+//                    cardsHeu.add(hc.calcHeuCardPath((PathCard)c, tempMoves, isMiner));
+                    cardsHeu.add(hc.calcHeuCardPathNEW((PathCard)c, tempMoves, isMiner, goalData));
                 }
 
             }
@@ -318,10 +319,11 @@ public class AIPakSam extends AI {
             m.addAll(generatePossiblePaths(move.handIndex(),(PathCard) move.card(), bd.boardBefore()));
 
             //Find bestMove
-            MoveHeu bestMove = hc.calcHeuCardPath((PathCard) move.card(), m, isMiner);
+//            MoveHeu bestMove = hc.calcHeuCardPath((PathCard) move.card(), m, isMiner);
+            MoveHeu bestMove = hc.calcHeuCardPathNEW((PathCard) move.card(), m, isMiner, goalData);
 
             //Get all possible heus
-            heus = hc.calcHeuCardPathFloats((PathCard) move.card(), m, isMiner);
+            heus = hc.calcHeuCardPathFloatsNEW((PathCard) move.card(), m, isMiner, goalData);
 
 
             System.out.print("Heus: ");
@@ -337,7 +339,7 @@ public class AIPakSam extends AI {
             z1 = bestMove.heu;
             System.out.println("Best Possible = "+z1 +" at ("+x+","+y+") rotate="+rotate);
 
-            z2 = hc.calcHeuCellPath((PathCard) move.card(), move, isMiner);
+            z2 = hc.calcHeuCellPathFloatsNEW((PathCard) move.card(), move, isMiner, goalData);
             System.out.println("Actual = "+z2 +" at ("+move.args()[0]+","+move.args()[1]+") rotate="+move.args()[2]);
 
             rp.updatePrediction(z2,heus,move.playerIndex());
