@@ -84,13 +84,39 @@ public class AIRikAl extends AI {
         */
 
        m = hc.maxHeu(cardsHeu).m;
+        
        if(m == null) {
            System.out.println("Move empty!!!");
            return Move.NewDiscardMove(index(), 0);
        } else {
-           return m;
+           MoveHeu badPath = findBadPathCard();
+           if(badPath == null) {
+               return m;
+           } else {
+               return Move.NewDiscardMove(index(), badPath.m.handIndex());
+           }
+
        }
 
+    }
+    
+    private MoveHeu findBadPathCard() {
+        float min = -4.0f;
+        MoveHeu lowest = new MoveHeu(null, Float.MAX_VALUE);
+
+        for (MoveHeu m: cardsHeu) {
+            if(m.heu < min) {
+                if(m.heu < lowest.heu) {
+                    lowest = m;
+                }
+            }
+        }
+
+        if(lowest.m == null) {
+            return null;
+        } else {
+            return lowest;
+        }
     }
 
     private void calcHandHeu(){
@@ -116,7 +142,7 @@ public class AIRikAl extends AI {
                 // Only If card can be placed
                 if(!tempMoves.isEmpty()) {
 //                    cardsHeu.add(hc.calcHeuCardPath((PathCard)c, tempMoves, isMiner));
-                    cardsHeu.add(hc.calcHeuCardPathNEW((PathCard)c, tempMoves, isMiner, goalData));
+                    cardsHeu.add(hc.calcHeuCardPathSelfNEW((PathCard)c, tempMoves, isMiner, goalData));
                 }
 
             }
@@ -176,6 +202,7 @@ public class AIRikAl extends AI {
         }
         System.out.println("");
         System.out.println("CardsHeu size() = " + cardsHeu.size());
+
 
         if(!cardsHeu.isEmpty()) {
             for (MoveHeu temp: cardsHeu) {
@@ -302,7 +329,6 @@ public class AIRikAl extends AI {
          * [V] Rockfall
          * [V] Block
          * [V] Repair
-         * [X] Discard
          */
 
         /************

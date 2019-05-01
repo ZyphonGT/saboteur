@@ -4,6 +4,7 @@ import model.*;
 import model.cards.Card;
 import model.cards.PathCard;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -234,25 +235,150 @@ public class HeuChecker {
         return bmove;
     }
 
-    /**
-     * PATHCARD
-     *      Goldminer
-     *          heu += (1+Xk)/9 * 5;
-     *
-     *          if(g1=1)
-     *              heu += (5-yk)/9 * 10;
-     *              heu += (a1+a2+a3+a4)
-     *
-     */
+    MoveHeu calcHeuCardPathSelfNEW(PathCard path, ArrayList<Move> targets, boolean isMiner, int[] goalData) {
+
+        float bmove = 0;
+        ArrayList<MoveHeu> allMoveHeu = new ArrayList<>();
+
+//        System.out.println("Inside heuChecker");
+
+        for(Move trgtMove : targets) {
+            bmove = 0;
+
+            if(isMiner) {
+                bmove += (1+trgtMove.args()[0])/9.0f*5.0f;
+
+                bmove += (path.topSide().val()) * 2.0f;
+                bmove += (path.rightSide().val()) * 2.0f;
+                bmove += (path.bottomSide().val()) * 2.0f;
+
+                if(trgtMove.args()[1] == 0) {
+                    bmove -= (path.topSide().val() * 2);
+                }
+                if(trgtMove.args()[1] == 4) {
+                    bmove -= (path.bottomSide().val() * 2);
+                }
+
+
+                if(goalData[0] == 1) {
+                    bmove += (4 - trgtMove.args()[1])/4*8.0f;
+                } else if(goalData[1] == 1) {
+                    bmove += (2 -(Math.abs(trgtMove.args()[1]-2)))/2.0f * 8.0f;
+                } else if(goalData[2] == 1) {
+                    bmove += (trgtMove.args()[1])/4*8.0f;
+                } else {
+                    bmove += (2 -(Math.abs(trgtMove.args()[1]-2)))/2.0f * 4.0f;
+                }
+
+
+                if(path.type() == Card.Type.DEADEND) {
+                    bmove = 0;
+                    for (PathCard.Side s : path.sides()) {
+                        if(s.val() == 0) {
+                            bmove -= 5;
+                        }
+                    }
+                }
+
+            } else {
+
+                bmove += (9-trgtMove.args()[0])/9.0f*5.0f;
+
+                bmove -= (path.topSide().val()) * 2.0f;
+                bmove -= (path.rightSide().val()) * 2.0f;
+                bmove -= (path.bottomSide().val()) * 2.0f;
+
+                if(trgtMove.args()[1] == 0) {
+                    bmove += (path.topSide().val() * 2);
+                }
+                if(trgtMove.args()[1] == 4) {
+                    bmove += (path.bottomSide().val() * 2);
+                }
+
+                if(goalData[0] == 1) {
+                    bmove -= (4 - trgtMove.args()[1])/4*8.0f;
+                } else if(goalData[1] == 1) {
+                    bmove -= (2 -(Math.abs(trgtMove.args()[1]-2)))/2.0f * 8.0f;
+                } else if(goalData[2] == 1) {
+                    bmove -= (trgtMove.args()[1])/4*8.0f;
+                } else {
+                    bmove -= (2 -(Math.abs(trgtMove.args()[1]-2)))/2.0f * 4.0f;
+                }
+
+                if(path.pathType() == PathCard.Type.CROSSROAD_PATH) {
+                    bmove = -10;
+                }
+            }
+/*
+            //     Cell's Top Row      AND    Card has RightPath     AND    Card has BottomPath
+            if(trgtMove.args()[1] == 0 && path.sides()[1].val() == 1 && path.sides()[2].val() == 1 ) {
+                bmove = bmove + 0.3f*(2);
+//                System.out.println("1 Met, bmove="+bmove);
+            }
+
+            //Cell's Between TopBottom Row
+            if(trgtMove.args()[1] < 4 && trgtMove.args()[1] > 0 ) {
+                int top     = path.sides()[0].val();
+                int right   = path.sides()[1].val();
+                int bot     = path.sides()[2].val();
+
+                bmove = bmove + 0.3f*(top+right+bot)+0.1f;
+//                System.out.println("2 Met, bmove="+bmove);
+            }
+
+            //     Cell's Bot Row      AND    Card has RightPath     AND    Card has TopPath
+            if(trgtMove.args()[1] == 4 && path.sides()[1].val() == 1 && path.sides()[0].val() == 1 ) {
+                bmove = bmove + 0.3f*(2);
+//                System.out.println("3 Met, bmove="+bmove);
+            }
+
+            // CardType is Pathway AND I'm Gold Miner
+            if(path.type() == Card.Type.PATHWAY && isMiner) {
+                bmove = bmove + 0.1f * (1 + trgtMove.args()[0]) / possibleGold;
+//                System.out.println("4 Met, bmove="+bmove);
+            }
+
+            // CardType is Pathway AND I'm Saboteur
+            if(path.type() == Card.Type.PATHWAY && !isMiner) {
+                bmove = bmove + 0.1f * (9 - trgtMove.args()[0]) / possibleGold;
+//                System.out.println("5 MET, bmove="+bmove);
+            }
+
+            // CardType is Deadend AND I'm Gold Miner
+            if(path.type() == Card.Type.DEADEND && isMiner) {
+                bmove = bmove + 0.1f * (9 - trgtMove.args()[0]) / possibleGold;
+//                System.out.println("6 Met, bmove="+bmove);
+            }
+
+            // CardType is Deadend AND I'm Saboteur
+            if(path.type() == Card.Type.DEADEND && !isMiner) {
+                bmove = bmove + 0.1f * (1 + trgtMove.args()[0]) / possibleGold;
+//                System.out.println("7 Met, bmove="+bmove);
+            }
+
+            bmove = bmove + k0;
+//            System.out.println("Added k0, bmove="+bmove);
+            */
+            allMoveHeu.add(new MoveHeu(trgtMove,bmove));
+
+
+
+        }
+
+        /*
+        for(MoveHeu moveHeu:allMoveHeu) {
+            System.out.print("Type "+moveHeu.m.type() + " ");
+            System.out.print("handIndex "+moveHeu.m.handIndex() + " ");
+            System.out.print("Position "+moveHeu.m.args()[0] + "."+ moveHeu.m.args()[1] + " ");
+            System.out.print("Heu "+moveHeu.heu + " ");
+            System.out.println("");
+        }
+        */
+        return maxHeu(allMoveHeu);
+    }
 
     MoveHeu calcHeuCardPathNEW(PathCard path, ArrayList<Move> targets, boolean isMiner, int[] goalData) {
 
-        /*
-//        NOT USED, since targets is guaranteed to be NOT empty
-        if(targets.size() == 0) {
-            return new MoveHeu(null, -MAX_VALUE);
-        }
-        */
         float bmove = 0;
         ArrayList<MoveHeu> allMoveHeu = new ArrayList<>();
 
