@@ -9,7 +9,7 @@ import model.cards.PlayerActionCard;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class AIPakSam extends AI {
+public class AIRikAl extends AI {
 
     boolean isMiner;
     int[] goalData = {0,0,0}; // 0 Unknown, -1 Rock, 1 Gold (Top, Mid, Bot)
@@ -28,7 +28,7 @@ public class AIPakSam extends AI {
     /**
      * TO-DO LIST
      * [V] Buat method untuk menghitung HueCard untuk Path
-     *      [ ] Updated Version
+     *      [V] Updated Version
      * [V] Buat method untuk menghitung HueCard untuk Map (Udah sama discard)
      * [V] Buat method untuk menghitung HueCard untuk Rock-Fall
      *      [V] Updated Version
@@ -56,7 +56,7 @@ public class AIPakSam extends AI {
      *
      * @param name the Player's name
      */
-    public AIPakSam(String name) {
+    public AIRikAl(String name) {
         super(name);
     }
 
@@ -105,6 +105,9 @@ public class AIPakSam extends AI {
             tempMoves = new ArrayList<>();
 
             Card c = currHand.get(cardIndex);
+
+
+
             if(c instanceof PathCard && !isSabotaged()) {
                 System.out.print("Path ");
                 //Check Possible Card Location

@@ -1,11 +1,9 @@
 package main;
 
-import aiPakSam.AIPakSam;
+import aiPakSam.AIRikAl;
 import gui.GameGUIController;
 import javafx.application.Application;
 import javafx.stage.Stage;
-
-import static gui.GameGUIController.GUIGamePlayer;
 
 public class Main extends Application {
   private static GameGUIController window;
@@ -25,11 +23,11 @@ public class Main extends Application {
 //    GUIGamePlayer testAI3 = new GUIGamePlayer("BOT2");
 
 
-//    AIPakSam testAI1 = new AIPakSam("BOT0");
-//    AIPakSam testAI2 = new AIPakSam("BOT1");
-//    AIPakSam testAI3 = new AIPakSam("BOT2");
+//    AIRikAl testAI1 = new AIRikAl("BOT0");
+//    AIRikAl testAI2 = new AIRikAl("BOT1");
+//    AIRikAl testAI3 = new AIRikAl("BOT2");
 //
-    AIPakSam testAI4 = new AIPakSam("PakSam");
+    AIRikAl testAI4 = new AIRikAl("PakSam");
     setUserAgentStylesheet(STYLESHEET_MODENA);
     window = GameGUIController.NewGameSession(testAI1, testAI2, testAI3, testAI4);
   }
